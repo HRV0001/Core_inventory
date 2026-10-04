@@ -4,7 +4,7 @@
  * Core Inventory Management System - Database Connection Manager
  * ==============================================================================
  * Handles robust PDO database connections for both:
- * 1. Cloud Production: Railway MySQL (supports MYSQL* env vars, DATABASE_URL/MYSQL_URL, and SSL)
+ * 1. Cloud Production: Railway MySQL / Vercel (supports MYSQL* env vars, DATABASE_URL/MYSQL_URL)
  * 2. Local Development: XAMPP / MariaDB (supports port 3306 and port 3307 automatically)
  */
 
@@ -46,7 +46,6 @@ if (!function_exists('getDBConnection')) {
         }
 
         // 2. Resolve parameters from standard Environment Variables (Railway / Vercel / .env)
-        // Check for DB_PASS and DB_PASSWORD to ensure compatibility with Vercel deployment configs
         $host   = getenv('DB_HOST') ?: (getenv('MYSQLHOST') ?: '127.0.0.1');
         $port   = getenv('DB_PORT') ?: (getenv('MYSQLPORT') ?: null);
         $dbName = getenv('DB_NAME') ?: (getenv('MYSQLDATABASE') ?: 'core_inventory');
@@ -114,11 +113,14 @@ class Database {
     }
 }
 
-// Global variable instance for procedural scripts
+// Global variable instances for procedural scripts ($pdo and $conn compatibility)
 try {
     $pdo = getDBConnection();
 } catch (Throwable $e) {
-    // Keep $pdo null if not yet configured, letting individual endpoints handle connection errors gracefully
     $pdo = null;
     error_log("Notice: Unable to initialize global \$pdo: " . $e->getMessage());
 }
+
+// Ensure legacy procedural scripts using mysqli or global $conn still work seamlessly
+$conn = $pdo;
+?>  
