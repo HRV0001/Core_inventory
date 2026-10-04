@@ -10,6 +10,13 @@ require_once __DIR__ . '/../config/db.php';
 
 $action = $_GET['action'] ?? ($_POST['action'] ?? '');
 
+if (in_array($action, ['login', 'register'], true) && !($pdo instanceof PDO)) {
+    setFlash('error', 'The database is unavailable. Please try again later.');
+    $page = $action === 'register' ? 'pages/register.php' : 'pages/login.php';
+    header('Location: ' . url($page));
+    exit;
+}
+
 switch ($action) {
     case 'login':
         handleLogin();

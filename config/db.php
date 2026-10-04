@@ -16,24 +16,25 @@ if (!function_exists('getDBConnection')) {
             return $pdo;
         }
 
+        $options = [
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES   => false,
+            PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"
+        ];
+
         // 1. Check for single Connection String URL (Provided by Railway / cloud providers)
         $dbUrl = getenv('DATABASE_URL') ?: getenv('MYSQL_URL');
-        if ($dbUrl) {
+        if (!empty($dbUrl)) {
             $parsedUrl = parse_url($dbUrl);
-            if ($parsedUrl) {
-                $host = $parsedUrl['host'] ?? '127.0.0.1';
-                $port = $parsedUrl['port'] ?? 3306;
-                $user = $parsedUrl['user'] ?? 'root';
-                $pass = $parsedUrl['pass'] ?? '';
+            if ($parsedUrl !== false && isset($parsedUrl['host'])) {
+                $host   = $parsedUrl['host'];
+                $port   = $parsedUrl['port'] ?? 3306;
+                $user   = $parsedUrl['user'] ?? 'root';
+                $pass   = $parsedUrl['pass'] ?? '';
                 $dbName = isset($parsedUrl['path']) ? ltrim($parsedUrl['path'], '/') : 'core_inventory';
 
                 $dsn = "mysql:host={$host};port={$port};dbname={$dbName};charset=utf8mb4";
-                $options = [
-                    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                    PDO::ATTR_EMULATE_PREPARES   => false,
-                    PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"
-                ];
 
                 try {
                     $pdo = new PDO($dsn, $user, $pass, $options);
@@ -45,21 +46,21 @@ if (!function_exists('getDBConnection')) {
         }
 
         // 2. Resolve parameters from standard Environment Variables (Railway / Vercel / .env)
-        // Railway typically defines MYSQLHOST, MYSQLPORT, MYSQLUSER, MYSQLPASSWORD, MYSQLDATABASE
+        // Check for DB_PASS and DB_PASSWORD to ensure compatibility with Vercel deployment configs
         $host   = getenv('DB_HOST') ?: (getenv('MYSQLHOST') ?: '127.0.0.1');
         $port   = getenv('DB_PORT') ?: (getenv('MYSQLPORT') ?: null);
         $dbName = getenv('DB_NAME') ?: (getenv('MYSQLDATABASE') ?: 'core_inventory');
         $user   = getenv('DB_USER') ?: (getenv('MYSQLUSER') ?: 'root');
-        $pass   = getenv('DB_PASSWORD') !== false ? getenv('DB_PASSWORD') : (getenv('MYSQLPASSWORD') !== false ? getenv('MYSQLPASSWORD') : '');
+        
+        $pass = getenv('DB_PASS');
+        if ($pass === false) {
+            $pass = getenv('DB_PASSWORD');
+        }
+        if ($pass === false) {
+            $pass = getenv('MYSQLPASSWORD') !== false ? getenv('MYSQLPASSWORD') : '';
+        }
 
-        $options = [
-            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES   => false,
-            PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"
-        ];
-
-        // 3. Connect: if port was explicitly defined, use it
+        // 3. Connect: if port was explicitly defined, use it directly
         if ($port) {
             $dsn = "mysql:host={$host};port={$port};dbname={$dbName};charset=utf8mb4";
             try {
@@ -86,8 +87,9 @@ if (!function_exists('getDBConnection')) {
         }
 
         // If local ports failed, throw exception
-        error_log("Database connection failed on all ports: " . ($lastException ? $lastException->getMessage() : 'Unknown error'));
-        throw new PDOException("Database connection error: " . ($lastException ? $lastException->getMessage() : 'Unable to connect to database'), 500);
+        $errorMsg = $lastException ? $lastException->getMessage() : 'Unable to connect to database';
+        error_log("Database connection failed on all ports: " . $errorMsg);
+        throw new PDOException("Database connection error: " . $errorMsg, 500);
     }
 }
 
