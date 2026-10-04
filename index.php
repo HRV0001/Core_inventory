@@ -1,8 +1,23 @@
 <?php
-// Server-side redirect straight to dashboard
-header("Location: pages/dashboard.php");
+// Immediate server-side redirect
+header("Location: /dashboard");
 exit();
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Core Inventory - Redirecting...</title>
+    <meta http-equiv="refresh" content="0; url=/dashboard">
+    <script>
+        window.location.replace("/dashboard");
+    </script>
+</head>
+<body>
+    <p>Redirecting to dashboard... <a href="/dashboard">Click here if not redirected</a>.</p>
+</body>
+</html>
 <!DOCTYPE html>
 <html lang="en">
 <head>
