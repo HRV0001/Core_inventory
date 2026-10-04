@@ -5,7 +5,7 @@
  * - Administrators -> Admin Dashboard (pages/admin-dashboard.php)
  * - Warehouse Staff -> Staff Dashboard (pages/staff-dashboard.php)
  */
-require_once __DIR__ . '/../includes/auth_check.php';
+__DIR__ . '/../includes/auth_check.php';
 
 if (isAdmin()) {
     header('Location: ' . url('pages/admin-dashboard.php'));
