@@ -52,8 +52,8 @@ $flash = getFlash();
                             <div class="user-avatar"><?= strtoupper(substr($user['full_name'], 0, 1)) ?></div>
                             <div class="user-info">
                                 <span class="user-name"><?= htmlspecialchars($user['full_name']) ?></span>
-                                <span class="user-role badge badge-<?= $user['role'] === 'admin' ? 'primary' : 'secondary' ?>">
-                                    <?= ucfirst($user['role']) ?>
+                                <span class="user-role badge badge-<?= $user['role'] === 'admin' ? 'admin' : 'staff' ?>">
+                                    <?= $user['role'] === 'admin' ? '👑 Admin' : '📦 Staff' ?>
                                 </span>
                             </div>
                         </div>

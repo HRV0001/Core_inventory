@@ -12,6 +12,13 @@ if (!isLoggedIn()) {
     exit;
 }
 
+// Route Guard: Supplier modifications require Admin role
+if (!isAdmin()) {
+    setFlash('error', 'Access denied. Only administrators have permission to modify suppliers.');
+    header('Location: ' . url('pages/suppliers.php'));
+    exit;
+}
+
 $action = $_GET['action'] ?? ($_POST['action'] ?? '');
 
 switch ($action) {

@@ -12,6 +12,13 @@ if (!isLoggedIn()) {
     exit;
 }
 
+// Route Guard: Category modifications require Admin role
+if (!isAdmin()) {
+    setFlash('error', 'Access denied. Only administrators have permission to modify categories.');
+    header('Location: ' . url('pages/categories.php'));
+    exit;
+}
+
 $action = $_GET['action'] ?? ($_POST['action'] ?? '');
 
 switch ($action) {

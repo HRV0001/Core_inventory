@@ -54,6 +54,14 @@ foreach ($categoryReports as $cr) {
     </button>
 </div>
 
+<!-- Reports Banner -->
+<?php if (!isAdmin()): ?>
+    <div class="alert alert-info" style="margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between;">
+        <span><strong>Staff Operations View:</strong> You have access to physical stock counts and replenishment alert reports. Financial valuations, capital investment, and profit margin analysis are restricted to Administrators.</span>
+        <span class="badge badge-secondary">Staff Mode</span>
+    </div>
+<?php endif; ?>
+
 <!-- Low Stock Alerts Report -->
 <div class="card">
     <div class="card-header" style="background: var(--warning-light);">
@@ -117,59 +125,63 @@ foreach ($categoryReports as $cr) {
     </div>
 </div>
 
-<!-- Inventory Valuation by Category -->
-<div class="card">
-    <div class="card-header">
-        <div>
-            <h2 class="card-title">Inventory Financial Valuation by Category</h2>
-            <small style="color: var(--text-muted);">Breakdown of physical assets, cost investment, and estimated retail potential</small>
+<?php if (isAdmin()): ?>
+    <!-- Inventory Valuation by Category (Admin Only) -->
+    <div class="card">
+        <div class="card-header">
+            <div>
+                <h2 class="card-title">Inventory Financial Valuation by Category</h2>
+                <small style="color: var(--text-muted);">Breakdown of physical assets, cost investment, and estimated retail potential (Admin Exclusive)</small>
+            </div>
+            <span class="badge badge-primary">Financial Intelligence</span>
         </div>
-    </div>
 
-    <div class="card-body" style="padding: 0;">
-        <div class="table-responsive">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Category</th>
-                        <th>Unique Items</th>
-                        <th>Total Units in Stock</th>
-                        <th>Total Cost Investment</th>
-                        <th>Total Retail Value</th>
-                        <th>Gross Margin Potential</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($categoryReports as $cat): 
-                        $margin = $cat['total_retail_value'] - $cat['total_cost_value'];
-                    ?>
+        <div class="card-body" style="padding: 0;">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
                         <tr>
-                            <td><strong><?= htmlspecialchars($cat['category_name']) ?></strong></td>
-                            <td><?= $cat['total_items'] ?></td>
-                            <td><strong><?= number_format($cat['total_units']) ?></strong></td>
-                            <td><?= formatCurrency($cat['total_cost_value']) ?></td>
-                            <td><strong><?= formatCurrency($cat['total_retail_value']) ?></strong></td>
-                            <td>
-                                <span style="color: <?= $margin >= 0 ? '#047857' : '#b91c1c' ?>; font-weight: 600;">
-                                    <?= formatCurrency($margin) ?>
-                                </span>
-                            </td>
+                            <th>Category</th>
+                            <th>Unique Items</th>
+                            <th>Total Units in Stock</th>
+                            <th>Total Cost Investment</th>
+                            <th>Total Retail Value</th>
+                            <th>Gross Margin Potential</th>
                         </tr>
-                    <?php endforeach; ?>
-                </tbody>
-                <tfoot>
-                    <tr style="background: #f1f5f9; font-weight: 700;">
-                        <td>TOTALS</td>
-                        <td>-</td>
-                        <td><?= number_format($totals['units']) ?> units</td>
-                        <td><?= formatCurrency($totals['cost_value']) ?></td>
-                        <td><?= formatCurrency($totals['retail_value']) ?></td>
-                        <td style="color: #047857;"><?= formatCurrency($totals['retail_value'] - $totals['cost_value']) ?></td>
-                    </tr>
-                </tfoot>
-            </table>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($categoryReports as $cat): 
+                            $margin = $cat['total_retail_value'] - $cat['total_cost_value'];
+                        ?>
+                            <tr>
+                                <td><strong><?= htmlspecialchars($cat['category_name']) ?></strong></td>
+                                <td><?= $cat['total_items'] ?></td>
+                                <td><strong><?= number_format($cat['total_units']) ?></strong></td>
+                                <td><?= formatCurrency($cat['total_cost_value']) ?></td>
+                                <td><strong><?= formatCurrency($cat['total_retail_value']) ?></strong></td>
+                                <td>
+                                    <span style="color: <?= $margin >= 0 ? '#047857' : '#b91c1c' ?>; font-weight: 600;">
+                                        <?= formatCurrency($margin) ?>
+                                    </span>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                    <tfoot>
+                        <tr style="background: #f1f5f9; font-weight: 700;">
+                            <td>TOTALS</td>
+                            <td>-</td>
+                            <td><?= number_format($totals['units']) ?> units</td>
+                            <td><?= formatCurrency($totals['cost_value']) ?></td>
+                            <td><?= formatCurrency($totals['retail_value']) ?></td>
+                            <td style="color: #047857;"><?= formatCurrency($totals['retail_value'] - $totals['cost_value']) ?></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
         </div>
     </div>
-</div>
+<?php endif; ?>
+
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>

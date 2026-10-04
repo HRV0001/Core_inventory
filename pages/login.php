@@ -66,9 +66,17 @@ $flash = getFlash();
             </form>
 
             <div class="demo-credentials-box">
-                <p><strong>Demo Credentials:</strong></p>
-                <p>Admin: <code>admin</code> / <code>admin123</code></p>
-                <p>Staff: <code>staff</code> / <code>staff123</code></p>
+                <p style="font-weight: 700; margin-bottom: 0.5rem;">Role-Based Test Accounts:</p>
+                <div style="margin-bottom: 0.65rem; padding-bottom: 0.5rem; border-bottom: 1px dashed #cbd5e1;">
+                    <p style="margin: 0;"><strong>👑 Administrator</strong> (Executive Access):</p>
+                    <div style="font-size: 0.8rem; margin: 0.2rem 0;"><code>admin</code> / <code>admin123</code></div>
+                    <small style="color: var(--text-muted);">Full permissions: User management, wholesale pricing, add/edit/delete items, financial valuation reports.</small>
+                </div>
+                <div>
+                    <p style="margin: 0;"><strong>📦 Warehouse Staff</strong> (Operations Access):</p>
+                    <div style="font-size: 0.8rem; margin: 0.2rem 0;"><code>staff</code> / <code>staff123</code></div>
+                    <small style="color: var(--text-muted);">Floor permissions: Stock In (Intake), Stock Out (Dispatch), inventory checks. Confidential wholesale costs & deletions restricted.</small>
+                </div>
             </div>
         </div>
 

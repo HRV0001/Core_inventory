@@ -3,6 +3,7 @@
  * Edit Product Form View
  */
 require_once __DIR__ . '/../includes/auth_check.php';
+requireAdmin();
 
 $id = (int)($_GET['id'] ?? 0);
 if (!$id) {

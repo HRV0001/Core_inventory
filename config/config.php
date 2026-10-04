@@ -32,8 +32,11 @@ function getBaseUrl(): string {
     
     // Check if running under XAMPP subdirectory
     $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
-    if (strpos($scriptName, '/Core_inventory') !== false) {
-        return $protocol . $host . '/Core_inventory';
+    if (preg_match('#^/([^/]+)#', $scriptName, $matches)) {
+        $firstDir = $matches[1];
+        if (stripos($firstDir, 'Core_inventory') !== false) {
+            return $protocol . $host . '/' . $firstDir;
+        }
     }
     
     return $protocol . $host;
@@ -77,6 +80,13 @@ function currentUser(): ?array {
  */
 function isAdmin(): bool {
     return isLoggedIn() && (($_SESSION['user_role'] ?? '') === 'admin');
+}
+
+/**
+ * Check if the logged-in user is staff
+ */
+function isStaff(): bool {
+    return isLoggedIn() && (($_SESSION['user_role'] ?? '') === 'staff');
 }
 
 /**

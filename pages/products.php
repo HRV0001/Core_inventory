@@ -20,16 +20,27 @@ $query = "SELECT p.*, c.name AS category_name, s.name AS supplier_name
 $products = $pdo->query($query)->fetchAll();
 ?>
 
+<?php if (!isAdmin()): ?>
+    <div class="alert alert-info" style="margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between;">
+        <span><strong>Staff Operations View:</strong> You have permissions to view inventory quantities and execute Stock In / Stock Out transactions. Product creation, editing, deletion, and wholesale cost data are restricted to Administrators.</span>
+        <span class="badge badge-secondary">Staff Mode</span>
+    </div>
+<?php endif; ?>
+
 <div class="card">
     <div class="card-header">
         <h2 class="card-title">Inventory Items (<?= count($products) ?>)</h2>
-        <a href="<?= url('pages/product-add.php') ?>" class="btn btn-primary">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-            <span>Add New Item</span>
-        </a>
+        <?php if (isAdmin()): ?>
+            <a href="<?= url('pages/product-add.php') ?>" class="btn btn-primary">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                <span>Add New Item</span>
+            </a>
+        <?php else: ?>
+            <span class="badge badge-primary">Catalog Directory</span>
+        <?php endif; ?>
     </div>
 
     <!-- Filters Bar -->
@@ -67,7 +78,9 @@ $products = $pdo->query($query)->fetchAll();
                         <th>Product Name</th>
                         <th>Category</th>
                         <th>Supplier</th>
-                        <th>Cost Price</th>
+                        <?php if (isAdmin()): ?>
+                            <th>Cost Price</th>
+                        <?php endif; ?>
                         <th>Selling Price</th>
                         <th>Stock Level</th>
                         <th>Status</th>
@@ -77,8 +90,8 @@ $products = $pdo->query($query)->fetchAll();
                 <tbody>
                     <?php if (empty($products)): ?>
                         <tr>
-                            <td colspan="9" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
-                                No products found in the catalog. <a href="<?= url('pages/product-add.php') ?>">Create your first product</a>.
+                            <td colspan="<?= isAdmin() ? 9 : 8 ?>" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
+                                No products found in the catalog. <?= isAdmin() ? '<a href="' . url('pages/product-add.php') . '">Create your first product</a>.' : '' ?>
                             </td>
                         </tr>
                     <?php else: ?>
@@ -105,7 +118,9 @@ $products = $pdo->query($query)->fetchAll();
                                 </td>
                                 <td><span class="badge badge-secondary"><?= htmlspecialchars($p['category_name'] ?? 'None') ?></span></td>
                                 <td><small><?= htmlspecialchars($p['supplier_name'] ?? '-') ?></small></td>
-                                <td><small><?= formatCurrency($p['cost_price']) ?></small></td>
+                                <?php if (isAdmin()): ?>
+                                    <td><small><?= formatCurrency($p['cost_price']) ?></small></td>
+                                <?php endif; ?>
                                 <td><strong><?= formatCurrency($p['unit_price']) ?></strong></td>
                                 <td>
                                     <strong><?= number_format($p['quantity']) ?></strong> 
@@ -120,8 +135,10 @@ $products = $pdo->query($query)->fetchAll();
                                     <div style="display: inline-flex; gap: 0.35rem;">
                                         <a href="<?= url('pages/stock-in.php?product_id=' . $p['id']) ?>" class="btn btn-sm btn-success" title="Quick Stock In">+ In</a>
                                         <a href="<?= url('pages/stock-out.php?product_id=' . $p['id']) ?>" class="btn btn-sm btn-outline" title="Quick Stock Out">- Out</a>
-                                        <a href="<?= url('pages/product-edit.php?id=' . $p['id']) ?>" class="btn btn-sm btn-outline" title="Edit Product">Edit</a>
-                                        <a href="<?= url('api/products.php?action=delete&id=' . $p['id']) ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this product? All movement history will also be removed.');" title="Delete">Delete</a>
+                                        <?php if (isAdmin()): ?>
+                                            <a href="<?= url('pages/product-edit.php?id=' . $p['id']) ?>" class="btn btn-sm btn-outline" title="Edit Product">Edit</a>
+                                            <a href="<?= url('api/products.php?action=delete&id=' . $p['id']) ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this product? All movement history will also be removed.');" title="Delete">Delete</a>
+                                        <?php endif; ?>
                                     </div>
                                 </td>
                             </tr>

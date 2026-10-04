@@ -66,7 +66,8 @@ function handleLogin() {
             $_SESSION['user_role']  = $user['role'];
 
             setFlash('success', 'Welcome back, ' . $user['full_name'] . '!');
-            header('Location: ' . url('pages/dashboard.php'));
+            $targetDashboard = ($user['role'] === 'admin') ? 'pages/admin-dashboard.php' : 'pages/staff-dashboard.php';
+            header('Location: ' . url($targetDashboard));
             exit;
         } else {
             setFlash('error', 'Invalid username/email or password.');

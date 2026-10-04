@@ -1,12 +1,15 @@
 <?php
 /**
  * Global Sidebar Navigation Component
+ * Dynamically tailored according to user role: Admin vs Staff
  */
 $currentPage = basename($_SERVER['PHP_SELF']);
+$userIsAdmin = isAdmin();
+$dashboardUrl = $userIsAdmin ? url('pages/admin-dashboard.php') : url('pages/staff-dashboard.php');
 ?>
 <aside class="sidebar" id="appSidebar">
     <div class="sidebar-brand">
-        <a href="<?= url('pages/dashboard.php') ?>" class="brand-link">
+        <a href="<?= $dashboardUrl ?>" class="brand-link">
             <div class="brand-icon">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
@@ -18,18 +21,31 @@ $currentPage = basename($_SERVER['PHP_SELF']);
         </a>
     </div>
 
+    <!-- Active Role Indicator -->
+    <div class="sidebar-role-badge <?= $userIsAdmin ? 'admin' : 'staff' ?>">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <?php if ($userIsAdmin): ?>
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+            <?php else: ?>
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+            <?php endif; ?>
+        </svg>
+        <span><?= $userIsAdmin ? '👑 Administrator Mode' : '📦 Staff Operations' ?></span>
+    </div>
+
     <nav class="sidebar-nav">
         <div class="nav-section-title">MAIN MENU</div>
         <ul class="nav-list">
             <li class="nav-item">
-                <a href="<?= url('pages/dashboard.php') ?>" class="nav-link <?= $currentPage === 'dashboard.php' ? 'active' : '' ?>">
+                <a href="<?= $dashboardUrl ?>" class="nav-link <?= in_array($currentPage, ['admin-dashboard.php', 'staff-dashboard.php', 'dashboard.php']) ? 'active' : '' ?>">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect x="3" y="3" width="7" height="7"></rect>
                         <rect x="14" y="3" width="7" height="7"></rect>
                         <rect x="14" y="14" width="7" height="7"></rect>
                         <rect x="3" y="14" width="7" height="7"></rect>
                     </svg>
-                    <span>Dashboard</span>
+                    <span><?= $userIsAdmin ? 'Admin Dashboard' : 'Staff Dashboard' ?></span>
                 </a>
             </li>
 
@@ -41,26 +57,30 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                         <line x1="3" y1="6" x2="21" y2="6"></line>
                         <path d="M16 10a4 4 0 0 1-8 0"></path>
                     </svg>
-                    <span>Products List</span>
+                    <span><?= $userIsAdmin ? 'Products Catalog' : 'Products List' ?></span>
                 </a>
             </li>
-            <li class="nav-item">
-                <a href="<?= url('pages/product-add.php') ?>" class="nav-link <?= $currentPage === 'product-add.php' ? 'active' : '' ?>">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="12" y1="8" x2="12" y2="16"></line>
-                        <line x1="8" y1="12" x2="16" y2="12"></line>
-                    </svg>
-                    <span>Add Product</span>
-                </a>
-            </li>
+
+            <?php if ($userIsAdmin): ?>
+                <li class="nav-item">
+                    <a href="<?= url('pages/product-add.php') ?>" class="nav-link <?= $currentPage === 'product-add.php' ? 'active' : '' ?>">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="16"></line>
+                            <line x1="8" y1="12" x2="16" y2="12"></line>
+                        </svg>
+                        <span>Add Product</span>
+                    </a>
+                </li>
+            <?php endif; ?>
+
             <li class="nav-item">
                 <a href="<?= url('pages/categories.php') ?>" class="nav-link <?= $currentPage === 'categories.php' ? 'active' : '' ?>">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
                         <line x1="7" y1="7" x2="7.01" y2="7"></line>
                     </svg>
-                    <span>Categories</span>
+                    <span>Categories <?= $userIsAdmin ? '' : '<small style="opacity: 0.7;">(View)</small>' ?></span>
                 </a>
             </li>
 
@@ -93,28 +113,60 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                 </a>
             </li>
 
-            <div class="nav-section-title">PARTNERS & REPORTS</div>
-            <li class="nav-item">
-                <a href="<?= url('pages/suppliers.php') ?>" class="nav-link <?= $currentPage === 'suppliers.php' ? 'active' : '' ?>">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="9" cy="7" r="4"></circle>
-                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                    </svg>
-                    <span>Suppliers</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="<?= url('pages/reports.php') ?>" class="nav-link <?= $currentPage === 'reports.php' ? 'active' : '' ?>">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="20" x2="18" y2="10"></line>
-                        <line x1="12" y1="20" x2="12" y2="4"></line>
-                        <line x1="6" y1="20" x2="6" y2="14"></line>
-                    </svg>
-                    <span>Reports & Alerts</span>
-                </a>
-            </li>
+            <?php if ($userIsAdmin): ?>
+                <div class="nav-section-title">ADMINISTRATION & AUDIT</div>
+                <li class="nav-item">
+                    <a href="<?= url('pages/users.php') ?>" class="nav-link <?= $currentPage === 'users.php' ? 'active' : '' ?>">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                        <span>User Management</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="<?= url('pages/suppliers.php') ?>" class="nav-link <?= $currentPage === 'suppliers.php' ? 'active' : '' ?>">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                        </svg>
+                        <span>Suppliers Directory</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="<?= url('pages/reports.php') ?>" class="nav-link <?= $currentPage === 'reports.php' ? 'active' : '' ?>">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="20" x2="18" y2="10"></line>
+                            <line x1="12" y1="20" x2="12" y2="4"></line>
+                            <line x1="6" y1="20" x2="6" y2="14"></line>
+                        </svg>
+                        <span>Valuation & Reports</span>
+                    </a>
+                </li>
+            <?php else: ?>
+                <div class="nav-section-title">RESOURCES & ALERTS</div>
+                <li class="nav-item">
+                    <a href="<?= url('pages/suppliers.php') ?>" class="nav-link <?= $currentPage === 'suppliers.php' ? 'active' : '' ?>">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                        </svg>
+                        <span>Suppliers Directory</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="<?= url('pages/reports.php') ?>" class="nav-link <?= $currentPage === 'reports.php' ? 'active' : '' ?>">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                            <line x1="12" y1="9" x2="12" y2="13"></line>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                        <span>Reorder Alerts</span>
+                    </a>
+                </li>
+            <?php endif; ?>
         </ul>
     </nav>
 

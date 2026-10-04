@@ -3,6 +3,7 @@
  * Add New Product Form View
  */
 require_once __DIR__ . '/../includes/auth_check.php';
+requireAdmin();
 
 $pageTitle = 'Add New Product';
 $extraJs = 'products.js';

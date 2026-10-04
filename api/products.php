@@ -13,6 +13,13 @@ if (!isLoggedIn()) {
     exit;
 }
 
+// Route Guard: Catalog modifications require Admin role
+if (!isAdmin()) {
+    setFlash('error', 'Access denied. Only administrators have permission to manage catalog products.');
+    header('Location: ' . url('pages/products.php'));
+    exit;
+}
+
 $action = $_GET['action'] ?? ($_POST['action'] ?? '');
 
 switch ($action) {

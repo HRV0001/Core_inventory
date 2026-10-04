@@ -16,28 +16,37 @@ $query = "SELECT c.*, COUNT(p.id) AS product_count
 $categories = $pdo->query($query)->fetchAll();
 ?>
 
-<div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1.5rem; align-items: start;">
-    <!-- Add Category Form -->
-    <div class="card">
-        <div class="card-header">
-            <h2 class="card-title">Add New Category</h2>
-        </div>
-        <div class="card-body">
-            <form action="<?= url('api/categories.php?action=create') ?>" method="POST">
-                <div class="form-group">
-                    <label class="form-label required" for="cat_name">Category Name</label>
-                    <input type="text" id="cat_name" name="name" class="form-control" placeholder="e.g. Storage & Shelving" required>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="cat_desc">Description</label>
-                    <textarea id="cat_desc" name="description" class="form-control" rows="3" placeholder="Brief description of items in this category..."></textarea>
-                </div>
-
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Create Category</button>
-            </form>
-        </div>
+<?php if (!isAdmin()): ?>
+    <div class="alert alert-info" style="margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between;">
+        <span><strong>Staff Mode:</strong> Product categories are displayed for reference. Creating, modifying, and deleting categories requires Administrator privileges.</span>
+        <span class="badge badge-secondary">Read-Only</span>
     </div>
+<?php endif; ?>
+
+<div style="display: grid; grid-template-columns: <?= isAdmin() ? '1fr 2fr' : '1fr' ?>; gap: 1.5rem; align-items: start;">
+    <?php if (isAdmin()): ?>
+        <!-- Add Category Form (Admin Only) -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Add New Category</h2>
+            </div>
+            <div class="card-body">
+                <form action="<?= url('api/categories.php?action=create') ?>" method="POST">
+                    <div class="form-group">
+                        <label class="form-label required" for="cat_name">Category Name</label>
+                        <input type="text" id="cat_name" name="name" class="form-control" placeholder="e.g. Storage & Shelving" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="cat_desc">Description</label>
+                        <textarea id="cat_desc" name="description" class="form-control" rows="3" placeholder="Brief description of items in this category..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Create Category</button>
+                </form>
+            </div>
+        </div>
+    <?php endif; ?>
 
     <!-- Category List Table -->
     <div class="card">
@@ -52,13 +61,15 @@ $categories = $pdo->query($query)->fetchAll();
                             <th>Category Name</th>
                             <th>Description</th>
                             <th>Items Linked</th>
-                            <th style="text-align: right;">Action</th>
+                            <?php if (isAdmin()): ?>
+                                <th style="text-align: right;">Action</th>
+                            <?php endif; ?>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (empty($categories)): ?>
                             <tr>
-                                <td colspan="4" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                                <td colspan="<?= isAdmin() ? 4 : 3 ?>" style="text-align: center; padding: 2rem; color: var(--text-muted);">
                                     No categories created yet.
                                 </td>
                             </tr>
@@ -70,13 +81,15 @@ $categories = $pdo->query($query)->fetchAll();
                                     <td>
                                         <span class="badge badge-primary"><?= $cat['product_count'] ?> products</span>
                                     </td>
-                                    <td style="text-align: right;">
-                                        <a href="<?= url('api/categories.php?action=delete&id=' . $cat['id']) ?>" 
-                                           class="btn btn-sm btn-danger" 
-                                           onclick="return confirm('Delete this category? Items assigned to it will become Uncategorized.');">
-                                            Delete
-                                        </a>
-                                    </td>
+                                    <?php if (isAdmin()): ?>
+                                        <td style="text-align: right;">
+                                            <a href="<?= url('api/categories.php?action=delete&id=' . $cat['id']) ?>" 
+                                               class="btn btn-sm btn-danger" 
+                                               onclick="return confirm('Delete this category? Items assigned to it will become Uncategorized.');">
+                                                Delete
+                                            </a>
+                                        </td>
+                                    <?php endif; ?>
                                 </tr>
                             <?php endforeach; ?>
                         <?php endif; ?>
